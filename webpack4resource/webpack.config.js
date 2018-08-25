@@ -13,6 +13,18 @@ module.exports = {
     module:{
         rules:[
             {
+                test: /\.html$/,
+                use: {
+                    loader: 'html-loader'
+                }
+            },
+            {
+                test: /\.ejs$/,
+                use: {
+                    loader: 'ejs-loader'
+                }
+            },
+            {
                 test: /\.js$/,
                 // exclude: /(node_modules|bower_components)/,
                 include: path.resolve(__dirname,'src'),
@@ -35,6 +47,34 @@ module.exports = {
                         }
                     },
                     {loader:'postcss-loader'}
+                ]
+            },
+            {
+                test: /\.less$/,
+                use: [
+                    { loader: 'style-loader' },
+                    { loader: 'css-loader',
+                        options: {
+                            modules: true,
+                            importLoaders:1
+                        }
+                    },
+                    {loader:'postcss-loader'},
+                    {loader:'less-loader'}
+                ]
+            },
+            {
+                test: /\.sass$/,
+                use: [
+                    { loader: 'style-loader' },
+                    { loader: 'css-loader',
+                        options: {
+                            modules: true,
+                            importLoaders:1
+                        }
+                    },
+                    {loader:'postcss-loader'},
+                    {loader:'sass-loader'}
                 ]
             }
         ]

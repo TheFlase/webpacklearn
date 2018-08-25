@@ -1,10 +1,13 @@
-import layer from './compoments/layer/layer'
-import './compoments/css/common.css'
+import Layer from './compoments/layer/layer.js';
+import './compoments/css/common.css';
 
 const app = function app() {
-    const number = 1;
-    console.log(number);
-    console.log(layer());
+    var dom = document.getElementById("app");
+    var layer = new Layer();
+    dom.innerHTML = layer.tpl({
+        name:'john',
+        arr:['apple','xiaomi','huawei']
+    });
 }
 
 new app();

@@ -193,3 +193,54 @@ module.exports = {
 }
 
 对于是通过@import引入的样式，我们在css-loader添加importLoaders属性并且值设置为1即可。具体参考webpack.config.js.
+
+（3）使用less和sass
+使用less-loader的话，首先安装插件：
+npm install less -save-dev
+npm install less-loader --save-dev
+npm install sass-loader --save-dev
+
+配置如下：
+{
+    test: /\.less$/,
+    use: [
+        { loader: 'style-loader' },
+        { loader: 'css-loader',
+            options: {
+            modules: true,
+            importLoaders:1
+            }
+        },
+        {loader:'postcss-loader'},
+        {loader:'less-loader'}
+    ]
+}
+
+同理，sass也跟上面一样。此处不再粘贴配置。
+
+（4）处理模板文件
+安装html-loader,命令如下：
+npm install html-loader --save-dev
+
+在webpack打包配置中添加loader配置，
+
+{
+    test: /\.html$/,
+    use: {
+        loader: 'html-loader'
+    }
+}
+
+使用ejs演示,所以先安装ejs-loader
+npm install ejs-loader --save-dev
+
+import模板文件tpl的时候，返回的是一个函数。如果是引用Html,返回的是字符串。使用配置如下：
+{
+    test: /\.ejs$/,
+    use: {
+        loader: 'ejs-loader'
+    }
+},
+
+
+
