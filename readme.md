@@ -1,5 +1,5 @@
 【学习笔记】
-
+备注：不同版本的webpack使用可能会差别，具体用法请参考官方文档（https://webpack.js.org/）
 
 1.webpackdemo源码编写记录
 
@@ -95,6 +95,101 @@ excludeChunks:排除指定的JS引入
 输出多个页面就配置多个html插件即可。
 
 
+3.webpack4resource 源码编写记录
+（1）使用babel-loader转换ES6
+安装
+npm install --save-dev babel-loader babel-core
+npm install --save-dev babel-preset-latest
 
+然后在webpack.config.js中定义
+module:{
+    loaders:[
+        {
+            test:/.\js$/,
+            loader:'babel',
+            query:{
+                 presets:['latest']
+             }
+        }
+    ]
+}
+其中的query节点可以在package.json中定义。
+  "babel":{
+    "presets":["latest"]
+  }
 
+以上的写法是老版本webpack写法，新版本使用loader需要用rules标签。
+module:{
+    rules:[
+        {
+            test: /\.js$/,
+            include: path.resolve(__dirname,'src'),
+            exclude: path.resolve(__dirname,'node_modules'),
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: ['latest']
+                }
+            }
+        }
+    ]
+},
 
+其中的include和exclude是分别指定babel转换资源时包含和不包含的目录。根据babel官网，推荐使用最新的babel-preset-env。首先进行安装：
+npm install babel-preset-env --save-dev
+在项目的根目录新建一个.babelrc文件，里面内容设置为：
+{
+    "presets": [ "env" ]
+}
+这个是默认配置，默认配置的情况下，它跟 babel-preset-latest 是等同的，会加载从es2015开始的所有preset。
+
+（2）处理项目中的CSS
+首先安装样式loader
+npm install style-loader css-loader --save-dev
+像其他loader一样，有3中使用方式。基于模块引入、cli和配置文件引入。此处使用配置文件：
+{
+    test: /\.css$/,
+    use: [
+        { loader: 'style-loader' },
+        { loader: 'css-loader',
+            options: {
+            modules: true
+            }
+        }
+    ]
+}
+
+另外，有时候我们可能统一对样式进行修改，例如加前缀之类，这个时候可以借助postcss-loader进行处理。首先进行安装：
+npm install postcss-loader --save-dev
+然后安装postcss的辅助插件：
+npm install autoprefixer --save-dev
+
+由于loader处理是由右到左，所以我们在配置的时候需要注意顺序。
+{
+    test: /\.css$/,
+    use: [
+        { loader: 'style-loader' },
+        { loader: 'css-loader',
+            options: {
+                modules: true
+            }
+        },
+        {loader:'postcss-loader'}
+    ]
+}
+在根目录创建postcss.config.js，加入
+module.exports = {
+    plugins: [
+        require('autoprefixer')({
+            browsers:['last 5 versions']
+        })
+    ]
+}
+对最近5个版本的浏览器进行处理。在浏览器看到类似这样的前缀效果：
+._2X960DBnSzcOoZ3k455WEi{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+对于是通过@import引入的样式，我们在css-loader添加importLoaders属性并且值设置为1即可。具体参考webpack.config.js.
