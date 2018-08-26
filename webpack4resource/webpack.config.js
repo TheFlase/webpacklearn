@@ -42,7 +42,6 @@ module.exports = {
                     { loader: 'style-loader' },
                     { loader: 'css-loader',
                         options: {
-                            modules: true,
                             importLoaders:1
                         }
                     },
@@ -53,18 +52,13 @@ module.exports = {
                 test: /\.less$/,
                 use: [
                     { loader: 'style-loader' },
-                    { loader: 'css-loader',
-                        options: {
-                            modules: true,
-                            importLoaders:1
-                        }
-                    },
+                    { loader: 'css-loader'},
                     {loader:'postcss-loader'},
                     {loader:'less-loader'}
                 ]
             },
             {
-                test: /\.sass$/,
+                test: /\.scss$/,
                 use: [
                     { loader: 'style-loader' },
                     { loader: 'css-loader',
@@ -75,6 +69,24 @@ module.exports = {
                     },
                     {loader:'postcss-loader'},
                     {loader:'sass-loader'}
+                ]
+            },
+            {
+                test: /\.(png|jpg|gif|svg)$/i,
+                use: [
+                    {
+                        loader:'url-loader',
+                        options:{
+                            limit: 500,
+                            name:'assets/[name]-[hash:5]-[ext]'
+                        }
+                    },
+                    {
+                        loader: 'image-webpack-loader',
+                        options: {
+                            disable: true // webpack@2.x and newer
+                        }
+                    }
                 ]
             }
         ]

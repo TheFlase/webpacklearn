@@ -207,7 +207,6 @@ npm install sass-loader --save-dev
         { loader: 'style-loader' },
         { loader: 'css-loader',
             options: {
-            modules: true,
             importLoaders:1
             }
         },
@@ -215,6 +214,8 @@ npm install sass-loader --save-dev
         {loader:'less-loader'}
     ]
 }
+
+需要注意的是,css-loader配置下modules设置为true,编码css时按照模块重写css名称以避免跨模块的冲突,会自动更改class的名称，会造成一种看上去“乱码”的名称。这样就会导致样式不起作用。（后面详细了解modules使用再回来补充说明）
 
 同理，sass也跟上面一样。此处不再粘贴配置。
 
@@ -241,6 +242,73 @@ import模板文件tpl的时候，返回的是一个函数。如果是引用Html,
         loader: 'ejs-loader'
     }
 },
+
+（5）处理图片以及其他文件
+
+1)要处理图片等资源，可以使用file-loader。首先安装
+npm install file-loader --save-dev
+然后在配置文件引入
+
+{
+    test: /\.(png|jpg|gif|svg)$/i,
+    use: {
+        loader: 'file-loader',
+        options: {
+            name:'assets/[name]-[hash:5]-[ext]'
+        }
+    }
+}
+其中匹配路径结尾的"i"代表忽略大小写的意思。
+
+一共的情况分为以下几种：
+情况1：在css文件中或者根目录的html引入图片=》
+可以直接写相对路径
+
+情况2：在模板中引用图片=》
+不可以直接写相对路径，请使用reqire的方式。例如：
+<img src="${require('../../assets/bg.png')}">
+
+2)url-loader的使用
+安装：npm install url-loader --save-dev
+配置：
+{
+    test: /\.(png|jpg|gif|svg)$/i,
+    use: {
+        loader: 'url-loader',
+        options: {
+            limit: 8192,
+            name:'assets/[name]-[hash:5]-[ext]'
+        }
+    }
+}
+
+url-loader和file-loader是什么关系呢？简答地说，url-loader封装了file-loader。url-loader不依赖于file-loader，即使用url-loader时，只需要安装url-loader即可，不需要安装file-loader，因为url-loader内置了file-loader。通过上面的介绍，我们可以看到，url-loader工作分两种情况：1.文件大小小于limit参数，url-loader将会把文件转为DataURL；2.文件大小大于limit，url-loader会调用file-loader进行处理，参数也会直接传给file-loader。因此我们只需要安装url-loader即可。
+
+合理的权衡使用base64或者fileloader处理比较重要，因为base64省去了网络请求资源，而http请求的图片有可以让浏览器进行缓存起来，需要综合权衡考虑取舍。另外，对于图片压缩，还可以借助另外一个插件。安装和配置如下：
+npm install image-webpack-loader --save-dev
+
+{
+    test: /\.(png|jpg|gif|svg)$/i,
+    use: [
+        {
+            loader:'url-loader',
+            options:{
+                limit: 500,
+                name:'assets/[name]-[hash:5]-[ext]'
+            }
+        },
+        {
+            loader: 'image-webpack-loader',
+            options: {
+                disable: true // webpack@2.x and newer
+            }
+        }
+    ]
+}
+
+当图片大于limit时就会用file-loader进行打包并且做压缩处理。
+
+
 
 
 
